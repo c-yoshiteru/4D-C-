@@ -122,19 +122,3 @@ for _ in range(5):
 
 構成要素は好きなだけ追加・修正できます。
 
-ライセンスは MIT を推奨（自由度高いため）。
-
-必要あれば、
-
-MIT LICENSE のテンプレ作成
-
-setup.py や pyproject.toml の追加
-
-GitHub Actions CI 設定
-
-Notebook の整備
-
-リポジトリ全体一式の ZIP 化
-
-などもできるよ。
-
