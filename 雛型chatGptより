@@ -1,3 +1,7 @@
+3) 最短で動くプロトタイプ（Python の雛形）
+
+以下は そのままコピペして動かせる“雛形コード”の抜粋（説明用）。実行には numpy, scikit-learn, transformers 等を想定。
+
 # 4d_c_prototype.py (抜粋)
 import time
 import numpy as np
