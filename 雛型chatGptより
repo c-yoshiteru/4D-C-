@@ -69,3 +69,5 @@ def response_for_c(c_val, base_llm_call):
         return base_llm_call(prompt="あなたの意志を肯定します。短く。")  # high: 'mari' mode
 
 # base_llm_call is a stub that calls an LLM API and returns text
+
+これをベースに、base_llm_call を OpenAI/Gemini の API に置き換え、評価データを叩くと挙動が見える。
