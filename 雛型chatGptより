@@ -1,0 +1,67 @@
+# 4d_c_prototype.py (抜粋)
+import time
+import numpy as np
+from collections import deque
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# --- Input parser: simple rhythm-based finiteization ---
+class InputParser:
+    def __init__(self, window=10):
+        self.timestamps = deque(maxlen=window)
+    def observe(self, text, ts=None):
+        ts = ts or time.time()
+        self.timestamps.append(ts)
+        return self.compute_finitization()
+    def compute_finitization(self):
+        if len(self.timestamps) < 2:
+            return 0.0
+        intervals = np.diff(np.array(self.timestamps))
+        std = np.std(intervals)
+        score = np.exp(-std*10)  # std小さいほど高スコア
+        return float(score)
+
+# --- NLP features: one-pronoun rate, observational-question count ---
+def nlp_features(text):
+    tokens = text.split()
+    pronouns = sum(1 for t in tokens if t in ("私","わたし","俺","おれ","僕"))
+    pron_rate = pronouns / max(1, len(tokens))
+    obs_questions = text.count("とは") + text.count("どう") + text.count("なぜ")
+    return {"pron_rate": pron_rate, "obs_q": obs_questions}
+
+# --- State manager: simplified 4D snapshot as dict of vectors ---
+class StateManager:
+    def __init__(self):
+        self.snapshot = {"emotion": np.zeros(16),
+                         "will": np.zeros(16),
+                         "context": np.zeros(128),
+                         "time": 0.0}
+    def update(self, nlp, fin_score, text):
+        # update will ~ fin_score, emotion ~ obs_q
+        self.snapshot["will"] = self.snapshot["will"] * 0.8 + fin_score * 0.2
+        self.snapshot["emotion"] = self.snapshot["emotion"] * 0.9 + np.array([nlp["obs_q"]]*16)*0.1
+        # context: tfidf vector approximation (placeholder)
+        self.snapshot["context"] = np.roll(self.snapshot["context"], 1)
+        self.snapshot["time"] = time.time()
+    def get_snapshot(self):
+        return self.snapshot
+
+# --- C extraction: very simplified rule-based ---
+def extract_c(snapshot, nlp):
+    stability = float(np.mean(snapshot["will"]))
+    flexibility = 1.0 - nlp["pron_rate"]
+    # internal-external discrepancy placeholder (small=good)
+    discrepancy = abs(stability - flexibility)
+    truthfulness = (stability * flexibility) / (discrepancy + 1e-6)
+    # threshold example
+    return {"C_value": truthfulness, "stability": stability, "flexibility": flexibility}
+
+# --- Response strategy ---
+def response_for_c(c_val, base_llm_call):
+    if c_val < 0.1:
+        return base_llm_call(prompt="具体的に説明してください。")  # low: high info
+    elif c_val < 0.5:
+        return base_llm_call(prompt="抽象的な示唆をください。")   # mid: create 'mari'
+    else:
+        return base_llm_call(prompt="あなたの意志を肯定します。短く。")  # high: 'mari' mode
+
+# base_llm_call is a stub that calls an LLM API and returns text
