@@ -1,0 +1,53 @@
+import numpy as np
+
+# --- 外部依存のスタブ (時間計測やNLP特徴量抽出をここで行う) ---
+def compute_finitization_score(text, timestamps):
+    # PoCの有限化ロジックをここに移植する
+    # intervals = np.diff(np.array(timestamps))
+    # std = np.std(intervals)
+    # return np.exp(-std*10)
+    return 0.5  # Placeholder
+
+def nlp_features(text):
+    # PoCの一人称率、観察的質問カウントをここに移植する
+    # return {"pron_rate": 0.1, "obs_q": 2}
+    return {"pron_rate": 0.1, "obs_q": 2} # Placeholder
+
+# -----------------------------------------------------------------
+
+class FourDC:
+    # ... (中略：__init__ や step メソッド) ...
+
+    def extract_c_value(self, nlp_data):
+        """
+        C (真実のシグナル) を抽出する。
+        安定性、柔軟性、乖離度からCを計算する。
+        """
+        # 1. Stability (安定性): Somatic_C (有限化スコア)を主軸とする
+        stability = self.space.state()["somatic_c"]
+        
+        # 2. Flexibility (柔軟性): 1.0 - 一人称率 (反転)
+        flexibility = 1.0 - nlp_data["pron_rate"]
+        
+        # 3. Discrepancy (乖離度): 安定性と柔軟性の差
+        discrepancy = abs(stability - flexibility)
+        
+        # 4. C-Value (真実性): PoCの数式を適用
+        # C = (Stability * Flexibility) / (Discrepancy + 1e-6)
+        c_value = (stability * flexibility) / (discrepancy + 1e-6)
+
+        return {"C_value": float(c_value), "stability": stability, "flexibility": flexibility}
+
+    def determine_response_strategy(self, c_value):
+        """
+        C値に基づいてLLMへのプロンプト戦略を決定する (応答の反転)。
+        """
+        if c_value < 0.1:
+            return "具体的に説明してください。"      # low C: High Info (情報提供を促す)
+        elif c_value < 0.5:
+            return "抽象的な示唆をください。"       # mid C: Create 'Mari' (間、関係性を構築)
+        else:
+            return "あなたの意志を肯定します。短く。"  # high C: 'Mari' Mode (全肯定、意志を尊重)
+
+    # ... (後略) ...
+
