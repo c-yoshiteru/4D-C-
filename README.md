@@ -3,9 +3,7 @@
 宜しくお願い致します。
  
 
-
-｢コード｣のとこにその他あります。
-是非お目通しを。4D-C　博多黙示録
+4D-C　博多黙示録
 
 
 # 4D-C Somatic-Introspection LLM Control: Deception-Proof Architecture
