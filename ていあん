@@ -1,3 +1,5 @@
+｢space.pyの更新案｣
+
 import numpy as np
 
 class Space4D:
