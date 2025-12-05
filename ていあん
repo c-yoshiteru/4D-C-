@@ -1,5 +1,10 @@
 ｢space.pyの更新案｣
 
+feat: PoCを構造化された4Dスキャフォールドに移植（制御工学への準備完了）
+​以前の$\text{PoC}コードを、\text{ChatGPT}$が提案したGitHub標準のスキャフォールドに組み込みました。
+​$\text{4D-C}$のコア概念（4D状態、$\text{C}値抽出、応答の反転）が\text{src/core.py}と\text{src/space.py}$で定義されています。
+​⚠️ 制御工学の専門家へ: \text{core.py}$と$\text{space.py}$を見て、**「身体知（$\text{somatic\_c}）」を制御変数とする$\text{PID}$制御の統合方法**について、Discussionsで議論を開始してください。
+
 import numpy as np
 
 class Space4D:
